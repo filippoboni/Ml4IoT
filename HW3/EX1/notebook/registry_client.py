@@ -17,7 +17,7 @@ for name,path in paths.items():
         'model': encoded_model,
         'name': name + '.tflite'
     }
-    url = 'http://raspberrypi.local/add'
+    url = 'http://raspberrypi.local:8080/add'
     r=requests.put(url,json=body)
 
     #check on the response
@@ -26,7 +26,7 @@ for name,path in paths.items():
         print(r.text)
 
 #-------------------------EX1.1-----------------------
-url = 'http://raspberrypi.local/list'
+url = 'http://raspberrypi.local:8080/list'
 r = requests.get(url)
 
 #check the response
@@ -45,7 +45,7 @@ else:
 model_name = 'cnn.tflite'
 tthres = 0.1 #in °C
 hthres = 0.2 #in %
-url = 'http://raspberrypi.local/predict?tthres={}&hthres={}&model='.format(tthres,hthres,model_name)
+url = 'http://raspberrypi.local:8080/predict?tthres={}&hthres={}&model='.format(tthres,hthres,model_name)
 
 r = requests.post(url)
 

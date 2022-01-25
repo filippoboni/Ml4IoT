@@ -10,8 +10,8 @@ import json
 import time
 import numpy as np
 import tensorflow as tf
-#from board import D4
-#import adafruit_dht
+from board import D4
+import adafruit_dht
 
 class ModelRegistry:
     exposed = True
@@ -125,14 +125,14 @@ class ModelRegistry:
 
             #check the thresholds
             if predictions[0] - new_measure_t < tthres:
-                body['e'].append({'n':'temperature_measured','u':'Cel','t':0,'v':new_measure_t})
+                body['e'].append({'n':'temperature_actual','u':'Cel','t':0,'v':new_measure_t})
                 body['e'].append({'n': 'temperature_predicted', 'u': 'Cel', 't': 0, 'v': predictions[0]})
 
                 body_json = json.dumps(body)
                 test.myMqttClient.myPublish("/276033/th_classifier", body_json) #send the alert to subscribers clients
 
             if predictions[1] - new_measure_h < hthres:
-                body['e'].append({'n': 'humidity_measured', 'u': 'RH', 't': 0, 'v': new_measure_h})
+                body['e'].append({'n': 'humidity_actual', 'u': 'RH', 't': 0, 'v': new_measure_h})
                 body['e'].append({'n': 'humidity_predicted', 'u': 'RH', 't': 0, 'v': predictions[1]})
 
                 body = json.dumps(body)
@@ -149,7 +149,7 @@ class ModelRegistry:
 if __name__ == '__main__':
     conf = {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
     cherrypy.tree.mount(ModelRegistry(), '', conf)
-    cherrypy.config.update({'server.socket_host': 'localhost'})
+    cherrypy.config.update({'server.socket_host': '0.0.0.0'})
     cherrypy.config.update({'server.socket_port': 8080})
     cherrypy.engine.start()
     cherrypy.engine.block()

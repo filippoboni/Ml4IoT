@@ -1,5 +1,5 @@
 from DoSomething import DoSomething
-from datetime import datetime
+import datetime
 import time
 import json
 
@@ -9,13 +9,11 @@ class Subscriber(DoSomething):
         events = input_json["e"]
 
         for event in events:
-            index = int(event["t"] / 10)
-
-            if event["n"] == "temperature":
-                data[index, 0] = float(event["v"])
-
+            if event['n'] == 'temperature':
+                alert_type = 'Temperature Alert'
             else:
-                data[index, 1] = float(event["v"])
+                alert_type = 'Temperature Alert'
+
 
         print("Topic: ", topic, "Prediction: ", logits, "Confidence :", prob) #(05/12/2022 19:15:01) Humidity Alert: Predicted=48.8% Actual=50.1%
 
