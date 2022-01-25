@@ -69,8 +69,8 @@ class ModelRegistry:
 #---------------------EX1.3------------------------------
     def POST(self,*path,**query):
         #start the mqtt service
-        test = DoSomething("alertNotifier")
-        test.run()
+        #test = DoSomething("alertNotifier")
+        #test.run()
 
         #controls on path and query
         if len(path) != 1:
@@ -93,6 +93,10 @@ class ModelRegistry:
             raise cherrypy.HTTPError(400,'Missing hthres name')
         else:
             hthres = float(hthres)
+
+        ############
+        print("starting measures....")
+        ############
 
         #start the 6 measurements with 1s intervals
         data = np.zeros(shape = (6,2)) #[[0,0],[0,0],...]
@@ -118,29 +122,43 @@ class ModelRegistry:
                 ]
             }
 
+            ##############
+            print("measuring....")
+            ##############
+
             new_measure_t = dht_device.temperature
             new_measure_h = dht_device.humidity
 
+            ###################
+            print("measured temp: {}, measured hum: {}".format(new_measure_t,new_measure_h))
+            ###################
             predictions = cnn.predict(data)
+
+            ##################
+            print("predicted_temp: {}, predicted_hum: {}".format(predictions[0],predictions[1]))
+            ##################
 
             #check the thresholds
             if predictions[0] - new_measure_t < tthres:
-                body['e'].append({'n':'temperature_actual','u':'Cel','t':0,'v':new_measure_t})
-                body['e'].append({'n': 'temperature_predicted', 'u': 'Cel', 't': 0, 'v': predictions[0]})
+                body['e'].append({'n':'temperature_actual','u':'°C','t':0,'v':new_measure_t})
+                body['e'].append({'n': 'temperature_predicted', 'u': '°C', 't': 0, 'v': predictions[0]})
 
                 body_json = json.dumps(body)
-                test.myMqttClient.myPublish("/276033/th_classifier", body_json) #send the alert to subscribers clients
+                #test.myMqttClient.myPublish("/276033/th_classifier", body_json) #send the alert to subscribers clients
 
             if predictions[1] - new_measure_h < hthres:
-                body['e'].append({'n': 'humidity_actual', 'u': 'RH', 't': 0, 'v': new_measure_h})
-                body['e'].append({'n': 'humidity_predicted', 'u': 'RH', 't': 0, 'v': predictions[1]})
+                body['e'].append({'n': 'humidity_actual', 'u': '%', 't': 0, 'v': new_measure_h})
+                body['e'].append({'n': 'humidity_predicted', 'u': '%', 't': 0, 'v': predictions[1]})
 
                 body = json.dumps(body)
-                test.myMqttClient.myPublish("/276033/th_classifier", body_json) #send the alert to subscribers clients
+                #test.myMqttClient.myPublish("/276033/th_classifier", body_json) #send the alert to subscribers clients
 
             #add the new measurements to the data window
             data = np.append(data,[[new_measure_t,new_measure_h]])[1:,:] #shape=(6,2)
 
+            #####################
+            print(data)
+            #####################
             time.sleep(1)
 
     def DELETE(self,*path,**query):
