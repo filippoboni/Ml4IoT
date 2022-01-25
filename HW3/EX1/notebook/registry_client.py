@@ -45,7 +45,7 @@ else:
 model_name = 'cnn.tflite'
 tthres = 0.1 #in °C
 hthres = 0.2 #in %
-url = 'http://raspberrypi.local:8080/predict?tthres={}&hthres={}&model='.format(tthres,hthres,model_name)
+url = 'http://raspberrypi.local:8080/predict?tthres={}&hthres={}&model={}'.format(tthres,hthres,model_name)
 
 r = requests.post(url)
 

@@ -99,7 +99,7 @@ class ModelRegistry:
         ############
 
         #start the 6 measurements with 1s intervals
-        data = np.zeros(shape = (6,2)) #[[0,0],[0,0],...]
+        data = np.zeros(shape = (6,2),dtype=np.float32) #[[0,0],[0,0],...]
         for i in range(6):
             data[i,0] = self.dht_device.temperature
             data[i,1] = self.dht_device.humidity
@@ -140,7 +140,7 @@ class ModelRegistry:
             ###################
             print("measured temp: {}, measured hum: {}".format(new_measure_t,new_measure_h))
             ###################
-            predictions = tflite_interpreter.get_tensor(output_details[0]['index'])
+            predictions = tf.squeeze(tflite_interpreter.get_tensor(output_details[0]['index']),axis=0)
 
             ##################
             print("predicted_temp: {}, predicted_hum: {}".format(predictions[0],predictions[1]))
