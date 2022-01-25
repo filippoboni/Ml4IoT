@@ -23,7 +23,7 @@ class ModelRegistry:
         except FileExistsError:
             pass
 
-        dht_device = adafruit_dht.DHT11(D4)
+        self.dht_device = adafruit_dht.DHT11(D4)
 
 #------------------EX1.2--------------------------
     def GET(self,*path,**query):
@@ -101,15 +101,23 @@ class ModelRegistry:
         #start the 6 measurements with 1s intervals
         data = np.zeros(shape = (6,2)) #[[0,0],[0,0],...]
         for i in range(6):
-            data[i,0] = dht_device.temperature
-            data[i,1] = dht_device.humidity
+            data[i,0] = self.dht_device.temperature
+            data[i,1] = self.dht_device.humidity
             time.sleep(1)
 
-        #data = np.expand_dims(data,axis = 0) #to get shape as keras requires
+        data = np.expand_dims(data,axis = 0) #shape = (1,6,2)
 
         #load the model and make prediction
         cnn_path = "./models/{}".format(model_name)
-        cnn = tf.keras.models.load_model(path)
+
+        tflite_interpreter = tf.lite.Interpreter(model_path=cnn_path)
+        tflite_interpreter.allocate_tensors()
+        input_details = tflite_interpreter.get_input_details()
+        output_details = tflite_interpreter.get_output_details()
+
+        tflite_interpreter.set_tensor(input_details[0]['index'], data)
+
+        tflite_interpreter.invoke()
 
         #prediction loop
         while True:
@@ -126,13 +134,13 @@ class ModelRegistry:
             print("measuring....")
             ##############
 
-            new_measure_t = dht_device.temperature
-            new_measure_h = dht_device.humidity
+            new_measure_t = self.dht_device.temperature
+            new_measure_h = self.dht_device.humidity
 
             ###################
             print("measured temp: {}, measured hum: {}".format(new_measure_t,new_measure_h))
             ###################
-            predictions = cnn.predict(data)
+            predictions = tflite_interpreter.get_tensor(output_details[0]['index'])
 
             ##################
             print("predicted_temp: {}, predicted_hum: {}".format(predictions[0],predictions[1]))
@@ -154,7 +162,7 @@ class ModelRegistry:
                 #test.myMqttClient.myPublish("/276033/th_classifier", body_json) #send the alert to subscribers clients
 
             #add the new measurements to the data window
-            data = np.append(data,[[new_measure_t,new_measure_h]])[1:,:] #shape=(6,2)
+            data = np.append(data,[[[new_measure_t,new_measure_h]]],axis=1)[:,1:,:] #shape=(6,2)
 
             #####################
             print(data)
