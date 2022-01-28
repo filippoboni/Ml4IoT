@@ -20,9 +20,9 @@ class Subscriber(DoSomething):
             else:
                 alert_type = 'Humidity Alert'
                 if event['n'] == 'humidity_actual':
-                    actual = event['v']*100
+                    actual = event['v']
                 else:
-                    predicted = event['v']*100
+                    predicted = event['v']
 
             print("({:02}/{:02}/{:04} {:02}:{:02}:{:02}) {}: Predicted={}{} Actual={}{}".
                   format(date.day, date.month, date.year, date.hour,
@@ -31,9 +31,9 @@ class Subscriber(DoSomething):
 
 
 if __name__ == "__main__":
-    test = Subscriber("thClassifier")
+    test = Subscriber("monitoring_client")
     test.run()
-    test.myMqttClient.mySubscribe("/276033/th_classifier")
+    test.myMqttClient.mySubscribe("/sensor/+")
 
     while True:
         time.sleep(1)

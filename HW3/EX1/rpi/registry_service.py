@@ -13,6 +13,12 @@ import tensorflow as tf
 from board import D4
 import adafruit_dht
 
+#define the function to normalize the data
+def normalize(data):
+    data[:,0] = (data[:,0]-9.10)*8.65
+    data[:,1] = (data[:,1]-75.90)*16.56
+    return data
+
 class ModelRegistry:
     exposed = True
 
@@ -69,8 +75,8 @@ class ModelRegistry:
 #---------------------EX1.3------------------------------
     def POST(self,*path,**query):
         #start the mqtt service
-        #test = DoSomething("alertNotifier")
-        #test.run()
+        test = DoSomething("alertNotifier")
+        test.run()
 
         #controls on path and query
         if len(path) != 1:
@@ -104,6 +110,9 @@ class ModelRegistry:
             data[i,0] = self.dht_device.temperature
             data[i,1] = self.dht_device.humidity
             time.sleep(1)
+
+        #normalize data basing on the trained dataset in lab3
+        data = normalize(data)
 
         data = np.expand_dims(data,axis = 0) #shape = (1,6,2)
 
@@ -152,14 +161,14 @@ class ModelRegistry:
                 body['e'].append({'n': 'temperature_predicted', 'u': '°C', 't': 0, 'v': predictions[0]})
 
                 body_json = json.dumps(body)
-                #test.myMqttClient.myPublish("/276033/th_classifier", body_json) #send the alert to subscribers clients
+                test.myMqttClient.myPublish("/sensor/temp", body_json) #send the alert to subscribers clients
 
             if predictions[1] - new_measure_h < hthres:
                 body['e'].append({'n': 'humidity_actual', 'u': '%', 't': 0, 'v': new_measure_h})
                 body['e'].append({'n': 'humidity_predicted', 'u': '%', 't': 0, 'v': predictions[1]})
 
                 body = json.dumps(body)
-                #test.myMqttClient.myPublish("/276033/th_classifier", body_json) #send the alert to subscribers clients
+                test.myMqttClient.myPublish("/sensor/hum", body_json) #send the alert to subscribers clients
 
             #add the new measurements to the data window
             data = np.append(data,[[[new_measure_t,new_measure_h]]],axis=1)[:,1:,:] #shape=(6,2)
