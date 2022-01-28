@@ -112,7 +112,7 @@ class ModelRegistry:
             time.sleep(1)
 
         #normalize data basing on the trained dataset in lab3
-        data = normalize(data)
+        #data = normalize(data)
 
         data = np.expand_dims(data,axis = 0) #shape = (1,6,2)
 
@@ -179,7 +179,6 @@ class ModelRegistry:
 
             #add the new measurements to the data window
             data = np.append(data,[[[new_measure_t,new_measure_h]]],axis=1)[:,1:,:] #shape=(6,2)
-            data = normalize(data)
 
             #####################
             print(data)
