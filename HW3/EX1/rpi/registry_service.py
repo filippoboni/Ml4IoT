@@ -174,7 +174,7 @@ class ModelRegistry:
                 body_hum['e'].append({'n': 'humidity_actual', 'u': '%', 't': 0, 'v': new_measure_h})
                 body_hum['e'].append({'n': 'humidity_predicted', 'u': '%', 't': 0, 'v': str(predictions[1])})
 
-                body = json.dumps(body_hum)
+                body_json = json.dumps(body_hum)
                 test.myMqttClient.myPublish("/sensor/hum", body_json) #send the alert to subscribers clients
 
             #add the new measurements to the data window
