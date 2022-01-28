@@ -24,9 +24,9 @@ class Subscriber(DoSomething):
                 else:
                     predicted = event['v']
 
-            print("({:02}/{:02}/{:04} {:02}:{:02}:{:02}) {}: Predicted={}{} Actual={}{}".
-                  format(date.day, date.month, date.year, date.hour,
-                         date.minute, date.second,alert_type,predicted,event['u'],actual,event['u']))
+        print("({:02}/{:02}/{:04} {:02}:{:02}:{:02}) {}: Predicted={}{} Actual={}{}".
+              format(date.day, date.month, date.year, date.hour,
+                     date.minute, date.second,alert_type,predicted,event['u'],actual,event['u']))
 
 
 

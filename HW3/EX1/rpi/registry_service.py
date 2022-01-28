@@ -132,10 +132,17 @@ class ModelRegistry:
         while True:
             now = datetime.now()
             timestamp = int(now.timestamp())
-            body = {
+            body_temp = {
                 'bn':'http://raspberrypi.local',
                 'bt':timestamp,
                 'e':[
+                ]
+            }
+
+            body_hum = {
+                'bn': 'http://raspberrypi.local',
+                'bt': timestamp,
+                'e': [
                 ]
             }
 
@@ -149,29 +156,30 @@ class ModelRegistry:
             ###################
             print("measured temp: {}, measured hum: {}".format(new_measure_t,new_measure_h))
             ###################
-            predictions = tf.squeeze(tflite_interpreter.get_tensor(output_details[0]['index']),axis=0)
+            predictions = tf.squeeze(tflite_interpreter.get_tensor(output_details[0]['index']),axis=0).numpy()
 
             ##################
             print("predicted_temp: {}, predicted_hum: {}".format(predictions[0],predictions[1]))
             ##################
 
             #check the thresholds
-            if predictions[0] - new_measure_t < tthres:
-                body['e'].append({'n':'temperature_actual','u':'°C','t':0,'v':new_measure_t})
-                body['e'].append({'n': 'temperature_predicted', 'u': '°C', 't': 0, 'v': predictions[0]})
+            if predictions[0] - new_measure_t > tthres:
+                body_temp['e'].append({'n':'temperature_actual','u':'°C','t':0,'v':new_measure_t})
+                body_temp['e'].append({'n': 'temperature_predicted', 'u': '°C', 't': 0, 'v': str(predictions[0])})
 
-                body_json = json.dumps(body)
+                body_json = json.dumps(body_temp)
                 test.myMqttClient.myPublish("/sensor/temp", body_json) #send the alert to subscribers clients
 
-            if predictions[1] - new_measure_h < hthres:
-                body['e'].append({'n': 'humidity_actual', 'u': '%', 't': 0, 'v': new_measure_h})
-                body['e'].append({'n': 'humidity_predicted', 'u': '%', 't': 0, 'v': predictions[1]})
+            if predictions[1] - new_measure_h > hthres:
+                body_hum['e'].append({'n': 'humidity_actual', 'u': '%', 't': 0, 'v': new_measure_h})
+                body_hum['e'].append({'n': 'humidity_predicted', 'u': '%', 't': 0, 'v': str(predictions[1])})
 
-                body = json.dumps(body)
+                body = json.dumps(body_hum)
                 test.myMqttClient.myPublish("/sensor/hum", body_json) #send the alert to subscribers clients
 
             #add the new measurements to the data window
             data = np.append(data,[[[new_measure_t,new_measure_h]]],axis=1)[:,1:,:] #shape=(6,2)
+            data = normalize(data)
 
             #####################
             print(data)

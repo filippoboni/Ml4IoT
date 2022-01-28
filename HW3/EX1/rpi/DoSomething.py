@@ -6,7 +6,7 @@ class DoSomething():
 		# create an instance of MyMQTT class
 		self.clientID = clientID
 		# Give as last parameter the object itself so MyQTT.py client can invoke the notify method
-		self.myMqttClient = MyMQTT(self.clientID, "mqtt.eclipseprojects.io", 1883, self) 
+		self.myMqttClient = MyMQTT(self.clientID, "test.mosquitto.org", 1883, self)
 		
 
 
