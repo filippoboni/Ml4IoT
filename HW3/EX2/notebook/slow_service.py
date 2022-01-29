@@ -21,7 +21,7 @@ linear_to_mel_weight_matrix = tf.signal.linear_to_mel_weight_matrix(num_mel_bins
                                                                     lower_edge_hertz=low_freq,
                                                                     upper_edge_hertz=upper_freq)
 
-#----------------------------------------------------PRE-PROCESSING FUNCTIONS---------------------------------------
+#-------------------------------------------------PRE-PROCESSING FUNCTIONS------------------------------------------
 
 def get_spectrogram(audio):
     """
@@ -80,6 +80,8 @@ def audio_process(audio_binary):
     return mfccs
 
 
+#--------------------------------------------------------SERVICE CLASS----------------------------------------------
+
 class SlowService(object):
     exposed = True
 
@@ -132,6 +134,7 @@ class SlowService(object):
     def DELETE(self, *path, **query):
         pass
 
+#-----------------------------------------------------------MAIN---------------------------------------------------
 
 
 if __name__=='__main__':
@@ -144,7 +147,7 @@ if __name__=='__main__':
     cherrypy.config.update({'server.socket_port': 8080})
     cherrypy.engine.start()
     cherrypy.engine.block()
-        
+
 
 
 
