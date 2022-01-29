@@ -79,20 +79,14 @@ def audio_process(audio_binary):
 
     return mfccs
 
-# Load the dscnn model (must be in the same folder of the script)
-tflite_interpreter = tf.lite.Interpreter(model_path="kws_dscnn_True.tflite")
-tflite_interpreter.allocate_tensors()
-
-input_details = tflite_interpreter.get_input_details()
-output_details = tflite_interpreter.get_output_details()
-
-input_shape = input_details[0]['shape']
 
 class SlowService(object):
     exposed = True
 
+
     def GET(self, *path, **query):
         pass
+        
 
     def POST(self, *path, **query):
         # Recieves json file with raw audio and reads body of http request
@@ -101,27 +95,43 @@ class SlowService(object):
         # Read body and convert json string in dictionary
         request = cherrypy.request.body.read()
         body = json.loads(request)
+        
         # Extract audio and compute mfccs
         audio_str = body["e"][0]["vd"]
         audio_binary = base64.b64decode(audio_str)
         mfccs = audio_process(audio_binary)
         mfccs = np.expand_dims(mfccs, axis=0).astype(np.float32)
+        
+        # Load the dscnn model using the interpreter
+        tflite_interpreter = tf.lite.Interpreter(model_path="./kws_dscnn_True.tflite")
+        tflite_interpreter.allocate_tensors()
+
+        input_details = tflite_interpreter.get_input_details()
+        output_details = tflite_interpreter.get_output_details()
+        
         # Prepare interpreter and make prediction
         tflite_interpreter.set_tensor(input_details[0]['index'], mfccs)
         tflite_interpreter.invoke()
         output_data = tflite_interpreter.get_tensor(output_details[0]['index'])
+        
+        #prepare the body to return to the client in json format
         inference = {
-            'pred' : int(np.argmax(output_data))
+            'prediction' : int(np.argmax(output_data))
         }
+        
+        #convert to json
         inference = json.dumps(inference)
 
         return inference
+        
 
     def PUT(self, *path, **query):
         pass
 
+
     def DELETE(self, *path, **query):
         pass
+
 
 
 if __name__=='__main__':
