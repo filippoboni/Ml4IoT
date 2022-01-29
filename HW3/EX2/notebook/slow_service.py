@@ -114,7 +114,11 @@ class SlowService(object):
         # Prepare interpreter and make prediction
         tflite_interpreter.set_tensor(input_details[0]['index'], mfccs)
         tflite_interpreter.invoke()
-        output_data = tflite_interpreter.get_tensor(output_details[0]['index'])
+        output_data = tflite_interpreter.get_tensor(output_details[0]['index']).numpy()
+
+        #############
+        print("predictions logits: {}".format(output_data))
+        #############
         
         #prepare the body to return to the client in json format
         inference = {
@@ -123,6 +127,10 @@ class SlowService(object):
         
         #convert to json
         inference = json.dumps(inference)
+
+        ############
+        print("return body: {}".format(inference))
+        ############
 
         return inference
         

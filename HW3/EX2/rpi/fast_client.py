@@ -101,16 +101,17 @@ class SignalGenerator:
 
         return ds
 
+# define a function to check how confident is the prediction, setting as lower threshold 40% (????)
 def success_checker(output_data, threshold):
 
     data = np.squeeze(output_data, axis=0)
     data = tf.nn.softmax(data).numpy()
-    sorted_idxs = np.argsort(data)
+    sorted_idxs = np.argsort(data) #indexes array of the same shape of data
 
-    first = data[sorted_idxs[0]]
-    second = data[sorted_idxs[1]]
+    first = data[sorted_idxs[-1]] #most probable label
+    second = data[sorted_idxs[-2]] #2nd most probable label
 
-    if first - second >= threshold:
+    if first - second <= threshold:
         return True
     else:
         return False
@@ -132,12 +133,11 @@ if not data_dir.exists():
       cache_dir='.', cache_subdir='data')
 
 # load labels list
-# string of labels
 labels = open('labels.txt').readlines()[0].split()
 
 # lista di test
 test_list = []
-file = open(code_path + "/kws_test_split.txt")
+file = open("kws_test_split.txt")
 for line in file:
     test_list.append('.' + line[1:-1])
 
@@ -156,7 +156,7 @@ tot_el = 0
 weight = 0
 corrects = 0
 threshold = 0.4
-url = 'http://raspberrypi.local'
+url = 'http://raspberrypi.local:8080'
 
 for sample, audio_binary, label in test_ds:
 
@@ -184,9 +184,10 @@ for sample, audio_binary, label in test_ds:
 
         if r.status_code==200:
             r_body = r.json()
-            prediction = r_body['pred']
+            prediction = r_body['prediction']
         else:
-            print('Communication failed')
+            print("Error")
+            print(r.text)
 
     else:
         prediction = np.argmax(output_data)
