@@ -150,16 +150,16 @@ class ModelRegistry:
             print("measuring....")
             ##############
 
-            new_measure_t = self.dht_device.temperature
-            new_measure_h = self.dht_device.humidity
+            new_measure_t = float(self.dht_device.temperature)
+            new_measure_h = float(self.dht_device.humidity)
 
             ###################
             print("measured temp: {}, measured hum: {}".format(new_measure_t,new_measure_h))
             ###################
-            predictions = tf.squeeze(tflite_interpreter.get_tensor(output_details[0]['index']),axis=0).numpy().astype(int)
+            predictions = tf.squeeze(tflite_interpreter.get_tensor(output_details[0]['index']),axis=0).numpy()
 
             ##################
-            print('vettore predizioni: {}'.format(predictions))
+            #print('vettore predizioni: {}'.format(predictions))
             ##################
             print("predicted_temp: {}, predicted_hum: {}".format(predictions[0][0],predictions[0][1]))
             ##################
@@ -183,7 +183,7 @@ class ModelRegistry:
             data = np.append(data,[[[new_measure_t,new_measure_h]]],axis=1)[:,1:,:] #shape=(6,2)
 
             #####################
-            print(data)
+            #print(data)
             #####################
             time.sleep(1)
 
