@@ -121,14 +121,6 @@ MFCC_OPTIONS_DEFAULT = {'frame_len':640, 'frame_step':320, 'mfcc':True,
                 'lower_freq':20, 'upper_freq':4000, 'num_mel_bins':40,
                 'num_coefficients':10 }
 
-# load all txt data in dir on raspberry called ./data/mini_speech_commands
-main_path = './data_select/mini_speech_commands'
-code_path = './data_select/mini_speech_commands'
-
-try:
-    os.mkdir(main_path)
-except FileExistsError:
-    pass
 
 # download data if needed
 data_dir = pathlib.Path('data/mini_speech_commands')
