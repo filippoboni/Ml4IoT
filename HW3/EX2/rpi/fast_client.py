@@ -42,7 +42,7 @@ class SignalGenerator:
         # squeeze audio into vector
         audio = tf.squeeze(audio, axis=1)
 
-        return audio, label_id
+        return audio, audio_binary, label_id
 
     def pad(self, audio):
         # pad audio if needed
@@ -83,18 +83,17 @@ class SignalGenerator:
         return spectrogram, label
 
     def preprocess_with_mfcc(self, file_path):
-        audio, label = self.read(file_path)
+        audio, audio_binary, label = self.read(file_path)
         audio = self.pad(audio)
         spectrogram = self.get_spectrogram(audio)
         mfccs = self.get_mfccs(spectrogram)
         mfccs = tf.expand_dims(mfccs, -1)
 
-        return mfccs, label
+        return mfccs, audio_binary, label
 
     def make_dataset(self, files, train):
         ds = tf.data.Dataset.from_tensor_slices(files)
         ds = ds.map(self.preprocess, num_parallel_calls=4)
-        ds = ds.batch(32)
         ds = ds.cache()
         if train is True:
             ds = ds.shuffle(100, reshuffle_each_iteration=True)
@@ -120,7 +119,7 @@ def success_checker(output_data, threshold):
 # Define pre-processing options
 MFCC_OPTIONS_DEFAULT = {'frame_len':640, 'frame_step':320, 'mfcc':True,
                 'lower_freq':20, 'upper_freq':4000, 'num_mel_bins':40,
-                'num_coefficients':10 }
+                'num_coefficients':10}
 
 
 # download data if needed
@@ -133,7 +132,15 @@ if not data_dir.exists():
       cache_dir='.', cache_subdir='data')
 
 # load labels list
-labels = open('labels.txt').readlines()[0].split()
+labels = open('labels.txt').readlines()[0]
+labels = labels.strip('][').split(', ')
+
+for i,el in enumerate(labels):
+    labels[i] = el.strip("'")
+
+#####################
+#print("labels: {}, type: {}".format(labels, type(labels)))
+#####################
 
 # lista di test
 test_list = []
@@ -155,8 +162,8 @@ tflite_interpreter.invoke()
 tot_el = 0
 weight = 0
 corrects = 0
-threshold = 0.4
-url = 'http://raspberrypi.local:8080'
+threshold = 0.3
+url = 'http://127.0.0.1:8080/slow_service'
 
 for sample, audio_binary, label in test_ds:
 
@@ -179,7 +186,9 @@ for sample, audio_binary, label in test_ds:
             "e" : [ {"n":"audio", "u":"/", "t":0, "vd": audio_str}]
         }
 
-        weight += len(json.dumps(body))
+        body = json.dumps(body)
+        weight += len(body)
+
         r = requests.post(url, body)
 
         if r.status_code==200:
@@ -197,5 +206,5 @@ for sample, audio_binary, label in test_ds:
 
 accuracy = corrects/tot_el
 
-print('Accuracy: {} %%'.format(accuracy*100))
-print('communication cost: {}'.format(weight/(1024**2)))
+print("Accuracy : %.2f %%"%(accuracy*100))
+print("Communication Cost : %.2f MB"%(weight/(1024*1024)))
