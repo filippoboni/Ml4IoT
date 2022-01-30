@@ -165,14 +165,14 @@ class ModelRegistry:
             ##################
 
             #check the thresholds
-            if predictions[0] - new_measure_t > tthres:
+            if predictions[0][0] - new_measure_t > tthres:
                 body_temp['e'].append({'n':'temperature_actual','u':'°C','t':0,'v':new_measure_t})
                 body_temp['e'].append({'n': 'temperature_predicted', 'u': '°C', 't': 0, 'v': str(predictions[0][0])})
 
                 body_json = json.dumps(body_temp)
                 test.myMqttClient.myPublish("/sensor/temp", body_json) #send the alert to subscribers clients
 
-            if predictions[1] - new_measure_h > hthres:
+            if predictions[0][1] - new_measure_h > hthres:
                 body_hum['e'].append({'n': 'humidity_actual', 'u': '%', 't': 0, 'v': new_measure_h})
                 body_hum['e'].append({'n': 'humidity_predicted', 'u': '%', 't': 0, 'v': str(predictions[0][1])})
 

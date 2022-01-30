@@ -117,8 +117,8 @@ def success_checker(output_data, threshold):
 
 
 # Define pre-processing options
-MFCC_OPTIONS_DEFAULT = {'frame_len':640, 'frame_step':320, 'mfcc':True,
-                'lower_freq':20, 'upper_freq':4000, 'num_mel_bins':40,
+MFCC_OPTIONS_DEFAULT = {'frame_len':480, 'frame_step':320, 'mfcc':True,
+                'lower_freq':20, 'upper_freq':4000, 'num_mel_bins':32,
                 'num_coefficients':10}
 
 
@@ -162,7 +162,7 @@ tflite_interpreter.invoke()
 tot_el = 0
 weight = 0
 corrects = 0
-threshold = 0.3
+threshold = 0.2
 url = 'http://127.0.0.1:8080/slow_service'
 
 for sample, audio_binary, label in test_ds:

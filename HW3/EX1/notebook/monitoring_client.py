@@ -26,7 +26,7 @@ class Subscriber(DoSomething):
 
         print("({:02}/{:02}/{:04} {:02}:{:02}:{:02}) {}: Predicted={:.2f}{} Actual={:.2f}{}".
               format(date.day, date.month, date.year, date.hour,
-                     date.minute, date.second,alert_type,predicted,event['u'],actual,event['u']))
+                     date.minute, date.second,alert_type,float(predicted),event['u'],float(actual),event['u']))
 
 
 
