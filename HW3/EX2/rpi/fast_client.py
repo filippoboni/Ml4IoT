@@ -117,7 +117,7 @@ def success_checker(output_data, threshold):
 
 
 # Define pre-processing options
-MFCC_OPTIONS_DEFAULT = {'frame_len':480, 'frame_step':320, 'mfcc':True,
+MFCC_OPTIONS_DEFAULT = {'frame_len':470, 'frame_step':320, 'mfcc':True,
                 'lower_freq':20, 'upper_freq':4000, 'num_mel_bins':32,
                 'num_coefficients':10}
 
