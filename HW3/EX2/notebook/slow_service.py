@@ -109,7 +109,7 @@ if __name__=='__main__':
                'tools.sessions.on': True}
           }
     cherrypy.tree.mount(SlowService(), '/slow_service', conf)
-    cherrypy.config.update({'server.socket_host': '127.0.0.1'})
+    cherrypy.config.update({'server.socket_host': '169.254.57.112'})
     cherrypy.config.update({'server.socket_port': 8080})
     cherrypy.engine.start()
     cherrypy.engine.block()

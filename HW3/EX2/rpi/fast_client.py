@@ -163,7 +163,7 @@ tot_el = 0
 weight = 0
 corrects = 0
 threshold = 0.2
-url = 'http://127.0.0.1:8080/slow_service'
+url = 'http://169.254.57.112:8080/slow_service'
 
 for sample, audio_binary, label in test_ds:
 
