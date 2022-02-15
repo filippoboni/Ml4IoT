@@ -94,8 +94,7 @@ class ListRegistry:
 
 
 class PredictRegistry:
-	
-	exposed = True
+    exposed = True
 
     # ---------------------EX1.3------------------------------
     def GET(self, *path, **query):
@@ -215,7 +214,7 @@ class PredictRegistry:
     def PUT(self,*path,**query):
         pass
 
-    def GET(self,*path,**query):
+    def POST(self,*path,**query):
         pass
 
     def DELETE(self,*path,**query):
