@@ -29,15 +29,13 @@ class AddRegistry:
         except FileExistsError:
             pass
 
-        self.dht_device = adafruit_dht.DHT11(D4)
-
     def GET(self,*path,**query):
         pass
 
     # -----------------EX1.1---------------------------
     def PUT(self, *path, **query):
         # controls on the path
-        if len(path) != 1 or path[0] != 'add':
+        if len(path) > 0:
             raise cherrypy.HTTPError(400, 'Wrong path')
 
         # get the body of the client request
@@ -72,17 +70,11 @@ class ListRegistry:
 
     def __init__(self):
         self.models_path = './models'
-        try:
-            os.mkdir(self.models_path)
-        except FileExistsError:
-            pass
-
-        self.dht_device = adafruit_dht.DHT11(D4)
 
 #------------------EX1.2--------------------------
     def GET(self,*path,**query):
         #controls on the path
-        if len(path) != 1 or path[0] != 'list':
+        if len(path) > 0:
             raise cherrypy.HTTPError('400',"Wrong path")
 
         #define the output body
@@ -102,6 +94,8 @@ class ListRegistry:
 
 
 class PredictRegistry:
+	
+	exposed = True
 
     # ---------------------EX1.3------------------------------
     def GET(self, *path, **query):
@@ -110,7 +104,7 @@ class PredictRegistry:
         test.run()
 
         # controls on path and query
-        if len(path) != 1:
+        if len(path) > 0:
             raise cherrypy.HTTPError(400, 'Wrong path')
         if len(query) != 3:
             raise cherrypy.HTTPError(400, 'Wrong query')
@@ -192,20 +186,20 @@ class PredictRegistry:
             ##################
             # print('vettore predizioni: {}'.format(predictions))
             ##################
-            print("predicted_temp: {}, predicted_hum: {}".format(predictions[0][0], predictions[0][1]))
+            print("predicted_temp: {}, predicted_hum: {}".format(predictions[0], predictions[1]))
             ##################
 
             # check the thresholds
-            if predictions[0][0] - new_measure_t > tthres:
+            if predictions[0] - new_measure_t > tthres:
                 body_temp['e'].append({'n': 'temperature_actual', 'u': '°C', 't': 0, 'v': new_measure_t})
-                body_temp['e'].append({'n': 'temperature_predicted', 'u': '°C', 't': 0, 'v': str(predictions[0][0])})
+                body_temp['e'].append({'n': 'temperature_predicted', 'u': '°C', 't': 0, 'v': str(predictions[0])})
 
                 body_json = json.dumps(body_temp)
                 test.myMqttClient.myPublish("/sensor/temp", body_json)  # send the alert to subscribers clients
 
-            if predictions[0][1] - new_measure_h > hthres:
+            if predictions[1] - new_measure_h > hthres:
                 body_hum['e'].append({'n': 'humidity_actual', 'u': '%', 't': 0, 'v': new_measure_h})
-                body_hum['e'].append({'n': 'humidity_predicted', 'u': '%', 't': 0, 'v': str(predictions[0][1])})
+                body_hum['e'].append({'n': 'humidity_predicted', 'u': '%', 't': 0, 'v': str(predictions[1])})
 
                 body_json = json.dumps(body_hum)
                 test.myMqttClient.myPublish("/sensor/hum", body_json)  # send the alert to subscribers clients
