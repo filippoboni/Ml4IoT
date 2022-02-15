@@ -94,6 +94,11 @@ class ListRegistry:
 
 
 class PredictRegistry:
+    
+    def __init__(self):
+        self.models_path = './models'
+        self.dht_device = adafruit_dht.DHT11(D4)
+
     exposed = True
 
     # ---------------------EX1.3------------------------------
